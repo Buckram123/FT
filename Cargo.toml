@@ -27,3 +27,5 @@ members = [
   "ft",
   "test-contract-defi",
 ]
+exclude = ["tests-workspaces"]
+

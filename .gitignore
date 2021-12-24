@@ -9,6 +9,7 @@ package-lock.json
 
 #keys
 **/neardev
+**/.near-credentials
 
 # testing
 /coverage
