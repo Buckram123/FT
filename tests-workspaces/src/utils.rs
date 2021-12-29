@@ -34,7 +34,7 @@ pub async fn init_no_defi(
     let wasm = std::fs::read(FT_WASM_FILEPATH)?;
     let contract = worker.dev_deploy(wasm).await?;
     contract
-        .call(&worker, "new_default_meta")
+        .call(worker, "new_default_meta")
         .args_json(serde_json::json!({
             "owner_id": root_id,
             "total_supply": initial_balance.to_string(),
@@ -54,10 +54,10 @@ pub async fn init_defi(
     root_id: &workspaces::AccountId,
     initial_balance: u128,
 ) -> anyhow::Result<(workspaces::Contract, workspaces::Contract, workspaces::Account)> {
-    let wasm = std::fs::read(DEFI_WASM_FILEPATH)?;
+    let wasm = std::fs::read(FT_WASM_FILEPATH)?;
     let contract = worker.dev_deploy(wasm).await?;
     contract
-        .call(&worker, "new_default_meta")
+        .call(worker, "new_default_meta")
         .args_json(serde_json::json!({
             "owner_id": root_id,
             "total_supply": initial_balance.to_string(),
@@ -66,9 +66,20 @@ pub async fn init_defi(
         .transact()
         .await?;
 
+        
     let alice = worker.dev_create_account().await?;
-
-    let wasm = std::fs::read(DEFI_WASM_FILEPATH)?;
-    let defi = worker.dev_deploy(wasm).await?;
+    register_user(&alice, worker, contract.id().clone()).await?;
+    // let total_supply: String = contract.view(&worker, "ft_total_supply", vec![]).await?.json()?;
+    // assert_eq!(total_supply.parse::<u128>()?, initial_balance);
+    
+    let defi_wasm = std::fs::read(DEFI_WASM_FILEPATH)?;
+    let defi = worker.dev_deploy(defi_wasm).await?;
+    defi.call(worker, "new")
+        .args_json(serde_json::json!({
+            "fungible_token_account_id": contract.id(),
+        }))?
+        .gas(parse_gas!("150 Tgas") as u64)
+        .transact()
+        .await?;
     Ok((contract, defi, alice))
 }

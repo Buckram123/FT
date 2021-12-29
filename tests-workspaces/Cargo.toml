@@ -7,7 +7,8 @@ edition = "2018"
 
 [dev-dependencies]
 workspaces = "0.1.0"
-near-jsonrpc-primitives = "0.11.0"
+near-jsonrpc-primitives = "0.5"
+near-primitives = "0.5"
 anyhow = "1.0"
 borsh = "0.9"
 maplit = "1.0"
